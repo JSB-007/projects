@@ -1,5 +1,6 @@
 import boto3
 import pandas as pd
+from smart_open import open
 
 # Set up AWS credentials
 access_key = 'YOUR_ACCESS_KEY'
@@ -16,16 +17,10 @@ session = boto3.Session(
 # Create an S3 client
 s3_client = session.client('s3')
 
-# Download the file from S3
-temp_file_path = '/path/to/temp/file.csv'  # Specify a temporary file path on your local system
-s3_client.download_file(bucket_name, file_key, temp_file_path)
-
-# Read the CSV file into a DataFrame
-df = pd.read_csv(temp_file_path)
+# Read the file from S3 into a DataFrame
+s3_uri = f's3://{bucket_name}/{file_key}'
+with open(s3_uri, 'rb') as file:
+    df = pd.read_csv(file)
 
 # Now you can work with the DataFrame
 print(df.head())
-
-# Clean up the temporary file
-import os
-os.remove(temp_file_path)
