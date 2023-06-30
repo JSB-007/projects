@@ -1,21 +1,29 @@
-import boto3
+import csv
+import shutil
 
-# AWS credentials (replace with your own)
-aws_access_key_id = 'YOUR_ACCESS_KEY'
-aws_secret_access_key = 'YOUR_SECRET_ACCESS_KEY'
-
-# Create an S3 client
-s3 = boto3.client('s3',
-                  aws_access_key_id=aws_access_key_id,
-                  aws_secret_access_key=aws_secret_access_key)
-
-# Specify the details of your S3 bucket
-bucket_name = 'your-bucket-name'
-
-# Perform operations on the S3 bucket
-# Example: List all objects in the bucket
-response = s3.list_objects(Bucket=bucket_name)
-
-# Print the object keys
-for obj in response['Contents']:
-    print(obj['Key'])
+def check_and_append_header(csv_file, scheme_file):
+    # Check if the CSV file has a header
+    with open(csv_file, 'r') as file:
+        reader = csv.reader(file)
+        has_header = csv.Sniffer().has_header(file.read(1024))
+    
+    if not has_header:
+        # Create a copy of the CSV file
+        copy_file = csv_file + '.copy'
+        shutil.copyfile(csv_file, copy_file)
+        
+        # Read the headers from the .scheme file
+        with open(scheme_file, 'r') as scheme:
+            headers = scheme.readline().strip().split(',')
+        
+        # Append the headers to the copied CSV file
+        with open(copy_file, 'r+') as file:
+            content = file.read()
+            file.seek(0, 0)
+            file.write(','.join(headers) + '\n' + content)
+    
+    # Return the path of the copied CSV file if headers were appended, otherwise None
+    if not has_header:
+        return copy_file
+    else:
+        return None
