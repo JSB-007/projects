@@ -1,29 +1,30 @@
-import csv
-import shutil
+import datetime
+import pandas as pd
+import random
+import numpy as np
 
-def check_and_append_header(csv_file, scheme_file):
-    # Check if the CSV file has a header
-    with open(csv_file, 'r') as file:
-        reader = csv.reader(file)
-        has_header = csv.Sniffer().has_header(file.read(1024))
-    
-    if not has_header:
-        # Create a copy of the CSV file
-        copy_file = csv_file + '.copy'
-        shutil.copyfile(csv_file, copy_file)
-        
-        # Read the headers from the .scheme file
-        with open(scheme_file, 'r') as scheme:
-            headers = scheme.readline().strip().split(',')
-        
-        # Append the headers to the copied CSV file
-        with open(copy_file, 'r+') as file:
-            content = file.read()
-            file.seek(0, 0)
-            file.write(','.join(headers) + '\n' + content)
-    
-    # Return the path of the copied CSV file if headers were appended, otherwise None
-    if not has_header:
-        return copy_file
-    else:
-        return None
+df = pd.DataFrame({'A': [1, 2, 3],
+                   'B': ['2022-01-01', '2022-01-02', '2022-01-03'],
+                   'C': ['10:00:00', '11:00:15', '12:00:30']})
+
+print("Original DF:")
+print(df)
+
+# Convert 'B' column to datetime
+df['B'] = pd.to_datetime(df['B'])
+
+# Convert 'C' column to datetime and combine with 'B' column
+df['C'] = pd.to_datetime(df['B'].dt.date.astype(str) + ' ' + df['C'])
+
+# Convert datetime columns to string format
+date_format = "%Y-%m-%d %H:%M:%S.%f"
+for column, dtype in df.dtypes.items():
+    if dtype == 'datetime64[ns]':
+        df[column] = df[column].dt.strftime(date_format)
+
+print("\nUpdated DF:")
+print(df)
+
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+print("\nTime now is:")
+print(now)
