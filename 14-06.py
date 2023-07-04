@@ -19,8 +19,11 @@ df['C'] = pd.to_datetime(df['B'].dt.date.astype(str) + ' ' + df['C'])
 # Convert datetime columns to string format
 date_format = "%Y-%m-%d %H:%M:%S.%f"
 for column, dtype in df.dtypes.items():
-    if dtype == 'datetime64[ns]':
+    if dtype == 'datetime64[ns]' and column != "B":
         df[column] = df[column].dt.strftime(date_format)
+
+# Convert 'B' column back to original format
+df['B'] = df['B'].dt.date.astype(str)
 
 print("\nUpdated DF:")
 print(df)
