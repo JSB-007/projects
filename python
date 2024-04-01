@@ -1,0 +1,45 @@
+import pandas as pd
+import json
+import os
+
+def flatten_json(y):
+    out = {}
+
+    def flatten(x, name=''):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a + '_')
+        elif type(x) is list:
+            i = 0
+            for a in x:
+                flatten(a, name + str(i) + '_')
+                i += 1
+        else:
+            out[name[:-1]] = x
+
+    flatten(y)
+    return out
+
+def flatten_json_file(json_file_path):
+    # Load the json file
+    with open(json_file_path, 'r') as f:
+        data = json.load(f)
+
+    # Flatten the json file
+    flattened_data = flatten_json(data)
+
+    # Convert the flattened json to a pandas DataFrame
+    df = pd.DataFrame([flattened_data])
+
+    # Define the csv file path
+    csv_file_path = os.path.splitext(json_file_path)[0] + '.csv'
+
+    # Convert the DataFrame to a .csv file
+    df.to_csv(csv_file_path, index=False)
+
+    # Print a success message
+    print(f"The json file {json_file_path} was successfully flattened and converted to a .csv file saved as {csv_file_path}.")
+
+# Call the function with the path to the json file
+# Note: Replace 'input.json' with the actual path to your file
+flatten_json_file(r'C:\Users\jasme\OneDrive\Desktop\python\Json.json')
