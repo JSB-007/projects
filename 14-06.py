@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
@@ -36,6 +36,18 @@ feature_importance = pd.DataFrame({'Feature': feature_names, 'Importance': coeff
 feature_importance = feature_importance.sort_values(by='Importance', ascending=False)
 print("Feature Importance:")
 print(feature_importance)
+
+# Fairness design pattern: Checking fairness across gender
+female_indices = X_test[X_test['Sex'] == 1].index
+male_indices = X_test[X_test['Sex'] == 0].index
+female_accuracy = accuracy_score(y_test.loc[female_indices], y_pred[female_indices])
+male_accuracy = accuracy_score(y_test.loc[male_indices], y_pred[male_indices])
+print("Accuracy for females:", female_accuracy)
+print("Accuracy for males:", male_accuracy)
+
+# Heuristic benchmark design pattern: Using majority class as benchmark
+majority_class_accuracy = accuracy_score(y_test, np.zeros_like(y_test))
+print("Accuracy using majority class (benchmark):", majority_class_accuracy)
 
 # Visualizing explanations using SHAP
 explainer = shap.Explainer(logreg, X_train)
